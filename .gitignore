@@ -1,0 +1,14 @@
+*.zip
+*.jpg
+*.npy
+*.dng
+*.DNG
+*.gz
+*.pyc
+*.pt
+*.log
+*.png
+*.out
+result*
+*.sh
+*.job
