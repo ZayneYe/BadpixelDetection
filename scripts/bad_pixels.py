@@ -3,7 +3,6 @@ import numpy as np
 import random
 import rawpy
 import sys
-import rawpy
 
 def decide_range(value, delta):
     if (1 + delta) * value > 1023:

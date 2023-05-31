@@ -4,14 +4,14 @@ from matplotlib.ticker import MultipleLocator
 import numpy as np
 import pandas as pd
 
-def plot_learning_curve(loss_vec, val_vec, val_loss_vec, save_path):
+def plot_loss_curve(loss_vec, val_vec, val_loss_vec, save_path):
     plt.figure()
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
     plt.plot(loss_vec)
     plt.plot(val_vec, val_loss_vec)
     plt.legend(labels=["Training", "Validation"], loc="upper right", fontsize=12)
-    plt.savefig(os.path.join(save_path, 'LR_curve.png'))
+    plt.savefig(os.path.join(save_path, 'Loss_curve.png'))
 
 def plot_NMSE(img_size, test_loss_vec, mean_loss_vec, median_loss_vec, save_path):
     plt.figure()
@@ -79,3 +79,35 @@ def plot_multimodel_NMSE(nmses_dict, save_path):
     
     plt.legend(loc="upper left", prop ={'size':15})
     plt.savefig(os.path.join(save_path, 'Multimodel_NMSE.png'))
+    
+
+def plot_prcurve(r_vec, p_vec, iou_vec, save_path):
+    cof_vec = np.linspace(0,1,101)
+    plt.figure(0)
+    plt.xlabel('Recall', size=18)
+    plt.ylabel('Precision', size=18)
+    plt.plot(r_vec, p_vec)
+    plt.savefig(os.path.join(save_path, 'PR_curve.png'))
+    plt.figure(1)
+    plt.xlabel('Confidence', size=18)
+    plt.ylabel('Recall', size=18)
+    plt.plot(cof_vec, r_vec)
+    plt.savefig(os.path.join(save_path, 'R_curve.png'))
+    plt.figure(2)
+    plt.xlabel('Confidence', size=18)
+    plt.ylabel('Precision', size=18)
+    plt.plot(cof_vec, p_vec)
+    plt.savefig(os.path.join(save_path, 'P_curve.png'))
+    plt.figure(3)
+    plt.xlabel('Confidence', size=18)
+    plt.ylabel('IOU', size=18)
+    plt.plot(cof_vec, iou_vec)
+    plt.savefig(os.path.join(save_path, 'IOU_curve.png'))
+
+
+def plot_lr_curve(lr_vec, save_path):
+    plt.figure()
+    plt.xlabel('iterations', size=18)
+    plt.ylabel('lr', size=18)
+    plt.plot(lr_vec)
+    plt.savefig(os.path.join(save_path, 'lr_curve.png'))

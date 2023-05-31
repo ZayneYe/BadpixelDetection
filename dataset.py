@@ -1,14 +1,16 @@
 import os
 import numpy as np
 import torch
-from utils.prepocess import prepocess
+from utils.process import prepocess
+import torch.nn.functional as F
+from torchvision import transforms
 
-MAXV = 1023
 
-class SIDDDataset(torch.utils.data.Dataset):
-    def __init__(self, dir, train, transform=None, divide=None):
+class SamsungDataset(torch.utils.data.Dataset):
+    def __init__(self, dir, train, transform=None, mask_transform=None, patch_num=4):
         self.transform = transform
-        self.divide = divide
+        self.mask_transform = mask_transform
+        self.patch_num = patch_num
         if train:
             self.imgs_path = os.path.join(dir, 'imgs', 'train')
             self.masks_path = os.path.join(dir, 'masks', 'train')
@@ -17,17 +19,21 @@ class SIDDDataset(torch.utils.data.Dataset):
             self.masks_path = os.path.join(dir, 'masks', 'val')
 
     def __getitem__(self, index):
-        img_file = os.listdir(self.imgs_path)[index]
-        mask_file = os.listdir(self.masks_path)[index]
-        img = np.load(os.path.join(self.imgs_path, img_file)).astype(np.float32) / MAXV
-        mask = np.load(os.path.join(self.masks_path, mask_file))
+        idx = index % self.patch_num
+        img_file = os.listdir(self.imgs_path)[index // self.patch_num]
+        mask_file = os.listdir(self.masks_path)[index // self.patch_num]
+        img = np.load(os.path.join(self.imgs_path, img_file)).astype(np.float32)
+        mask = np.load(os.path.join(self.masks_path, mask_file)).astype(np.float32)
+       
+        if self.patch_num != 1:
+            img, mask = prepocess(img, mask, idx)
+        
         if self.transform:
             img = self.transform(img)
-            mask = self.transform(mask)
-        if self.divide:
-            img, mask = prepocess(img, mask)
-            # print("\n")
+        if self.mask_transform:
+            mask = self.mask_transform(mask)
+        
         return img, mask
 
     def __len__(self):
-        return len(os.listdir(self.imgs_path))
+        return self.patch_num * len(os.listdir(self.imgs_path))
