@@ -7,13 +7,11 @@ import sys
 def decide_range(value, delta):
     if (1 + delta) * value > 1023:
         return [(0, int((1 - delta) * value))]
-    elif (1 - delta) * value < 0:
-        return [(int((1 + delta) * value), 1023)]
     else:
         return [(0, int((1 - delta) * value)), (int((1 + delta) * value), 1023)]
 
 if __name__ == "__main__":
-    data_dir = '../data/SIDD_DNG'
+    data_dir = '../data/ISP_0.7'
     org_dir = f'{data_dir}/original_imgs'
     imgs_dir = f'{data_dir}/imgs'
     masks_dir = f'{data_dir}/masks'
@@ -21,7 +19,7 @@ if __name__ == "__main__":
         os.makedirs(masks_dir)
     if not os.path.exists(imgs_dir):
         os.makedirs(imgs_dir)
-    delta = 0.3
+    delta = 0.7
     bad_rate = 0.0001
     
     for i, dng in enumerate(os.listdir(org_dir)):

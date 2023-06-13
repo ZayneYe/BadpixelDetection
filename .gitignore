@@ -9,6 +9,7 @@
 *.log
 *.png
 *.out
-result*
+runs*
+__pycache__
 *.sh
 *.job
