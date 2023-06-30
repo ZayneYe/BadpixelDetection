@@ -25,7 +25,7 @@ def confuse_matrix(pred, lab):
 def calc_metrics(predict, label, thres):
     # pred_recon = reconstruct(predict)
     # lab_recon = reconstruct(label)
-    pred_binary = (predict > thres)
+    pred_binary = (predict >= thres)
     iou = binary_iou(pred_binary, label)
     cm, tn, fp, fn, tp = confuse_matrix(pred_binary, label)
     recall, precision = precision_recall(tp, fn, fp)
@@ -37,7 +37,7 @@ def calc_metrics_one(predict, label, thres):
     for i in range(len(predict)):
         pred = predict[i]
         lab = label[i]
-        pred_binary = (pred > thres)
+        pred_binary = (pred >= thres)
         cm, tn, fp, fn, tp = confuse_matrix(pred_binary, lab)
         tp_ += tp
         fn_ += fn

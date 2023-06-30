@@ -59,7 +59,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--data_path', type=str, default='data/ISP_0.7')
     parser.add_argument('--model_path', type=str, default='runs/train/UNet_ISP_0.7/exp1/weights/best.pt')
-    parser.add_argument('--save_path', type=str, default='runs/test/UNet_ISP_0.7')
+    parser.add_argument('--save_path', type=str, default='runs/test/UNet_ISP_0.7_2')
     parser.add_argument('--device', type=int, nargs='+', default=2)
     parser.add_argument('--num_workers', type=int, default=8)
     args = parser.parse_args()
