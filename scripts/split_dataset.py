@@ -14,7 +14,7 @@ def move_data(img_dir, mask_dir, set, cate):
         shutil.move(os.path.join(mask_dir, file), mask_dir_)
 
 if __name__ == "__main__":
-    data_dir = '../data/ISP_0.7'
+    data_dir = '../data/ISP_0.7_1pp'
     imgs_dir = f'{data_dir}/imgs'
     masks_dir = f'{data_dir}/masks'
     data = list(os.listdir(imgs_dir))

@@ -19,8 +19,8 @@ class PixelCalculate():
     def __init__(self, args):
         transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize([151.78], [48.85])])
         mask_transform = transforms.Compose([transforms.ToTensor()])
-        train_data = SamsungDataset(args.data_path, cate='train', transform=transform, mask_transform=mask_transform, patch_num=64)
-        val_data = SamsungDataset(args.data_path, cate='val', transform=transform, mask_transform=mask_transform, patch_num=64)
+        train_data = SamsungDataset(args.data_path, cate='train', transform=transform, mask_transform=mask_transform, patch_num=args.patch_num)
+        val_data = SamsungDataset(args.data_path, cate='val', transform=transform, mask_transform=mask_transform, patch_num=args.patch_num)
             
         self.train_set = DataLoader(train_data, batch_size=args.batch_size, num_workers=args.num_workers, shuffle=True)
         self.val_set = DataLoader(val_data, batch_size=1, num_workers=args.num_workers, shuffle=False)
@@ -89,7 +89,7 @@ class PixelCalculate():
         self.logger.info("Start Training...")
         model = self.model
         optimizer = torch.optim.Adam(model.parameters(), lr=self.lr, weight_decay=1e-5)
-        # scheduler = StepLR(optimizer, step_size=10, gamma=0.5)
+        scheduler = StepLR(optimizer, step_size=10, gamma=0.5)
         # scheduler = CosineAnnealingLR(optimizer, T_max=10, eta_min=1e-4)
         
         train_loss, val_loss, max_iou = 0, 0, 0
@@ -109,12 +109,11 @@ class PixelCalculate():
                     train_loss += loss.item()
                     loss.backward()
                     optimizer.step()
-                    # scheduler.step()
                     lr_vec.append(optimizer.param_groups[0]["lr"])
                     pbar.set_postfix({'loss': loss.item()})
                     pbar.update()
                 pbar.close()
-            # scheduler.step()
+            scheduler.step()
             train_loss /= len(self.train_set)
             loss_vec.append(train_loss)
             info = f"Epoch: {epoch + 1}\tTraining Loss: {train_loss:.4f}\t"
@@ -156,10 +155,10 @@ if __name__ == "__main__":
     parser.add_argument('--cls_thres', type=float, default=0.5)
     parser.add_argument('--epochs', type=int, default=50)
     parser.add_argument('--num_workers', type=int, default=8)
-    parser.add_argument('--device', type=int, nargs='+', default=1)
-    parser.add_argument('--batch_size', type=int, default=16)
+    parser.add_argument('--device', type=int, nargs='+', default=3)
+    parser.add_argument('--batch_size', type=int, default=8)
     parser.add_argument('--val_step', type=int, default=1)
-    parser.add_argument('--use_poison', action='store_true')
+    parser.add_argument('--patch_num', type=int, default=64)
     parser.add_argument('--data_path', type=str, default='data/ISP_0.7')
     parser.add_argument('--model_path', type=str, default='UNet_ISP_0.7')
     args = parser.parse_args()
