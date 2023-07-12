@@ -3,10 +3,11 @@ from utils.process import reconstruct
 import torch
 from torch import Tensor
 
-def binary_iou(pred, lab):
-    intersecion = pred * lab
-    union = pred + lab
-    iou = intersecion.sum() / union.sum()
+def binary_iou(tp, fn, fp):
+    # intersecion = pred * lab
+    # union = pred + lab
+    # iou = intersecion.sum() / union.sum()
+    iou = tp / (tp + fn + fp)
     return iou
 
 def precision_recall(tp, fn, fp):
@@ -26,9 +27,9 @@ def calc_metrics(predict, label, thres):
     # pred_recon = reconstruct(predict)
     # lab_recon = reconstruct(label)
     pred_binary = (predict >= thres)
-    iou = binary_iou(pred_binary, label)
     cm, tn, fp, fn, tp = confuse_matrix(pred_binary, label)
     recall, precision = precision_recall(tp, fn, fp)
+    iou = binary_iou(tp, fn, fp)
     dice_score = dice_coeff(pred_binary, label)
     return recall, precision, iou, dice_score, cm
 
@@ -48,12 +49,25 @@ def calc_metrics_one(predict, label, thres):
     iou = tp_ / (tp_ + fn_ + fp_)
     dice_score /= len(predict)
     return recall, precision, iou, dice_score
+
+def vote_metrics(predict, label):
+    pred = torch.sum(predict, dim=0) / predict.shape[0]
+    lab = label[0]
+    pred_binary = (pred >= 0.5)
+    cm, tn, fp, fn, tp = confuse_matrix(pred_binary, lab)
+    iou = binary_iou(tp, fn, fp)
+    recall, precision = precision_recall(tp, fn, fp)
+    dice_score = dice_coeff(pred_binary, lab)
+    return recall, precision, iou, dice_score
         
                 
 def dice_coeff(input: Tensor, target: Tensor, epsilon: float = 1e-10):
     assert input.size() == target.size()
     # assert input.dim() == 3 or not reduce_batch_first
+    
     sum_dim = (-1, -2, -3)
+    if input.dim() == 2:
+        sum_dim = (-1, -2)
     inter = 2 * (input * target).sum(dim=sum_dim)
     sets_sum = input.sum(dim=sum_dim) + target.sum(dim=sum_dim)
     sets_sum = torch.where(sets_sum == 0, inter, sets_sum)

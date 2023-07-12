@@ -60,8 +60,8 @@ def divide4(fea, idx):
     return fea_combine[idx]
 
 def preprocess(img, mask, idx):
-    img_ = divide64(img, idx)
-    mask_ = divide64(mask, idx)
+    img_ = divide4(img, idx)
+    mask_ = divide4(mask, idx)
     return img_, mask_
 
 def generate_pred_dict(pred_dict, file, predict, label):
@@ -80,8 +80,8 @@ def postprocess(pred_dict, dataset):
     for key in pred_dict.keys():
         pred = torch.cat(pred_dict[key]['pred'], dim=1)
         lab = torch.cat(pred_dict[key]['lab'], dim=1)
-        pred_recon = reconstruct(pred)
-        lab_recon = reconstruct(lab)
+        pred_recon = reconstruct_expand(pred)
+        lab_recon = reconstruct_expand(lab)
         # lab_real = np.load(os.path.join("/home/xinanye/project/Badpixels/data/ISP/masks/val", str(key[0]))).astype(np.float32)
         # lab_real = torch.tensor(lab_real)
         # print(lab_real.shape)
