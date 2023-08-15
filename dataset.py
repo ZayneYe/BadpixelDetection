@@ -23,7 +23,7 @@ class SamsungDataset(torch.utils.data.Dataset):
         mask = np.load(os.path.join(self.masks_path, file)).astype(np.float32)
        
         if self.patch_num != 1:
-            img, mask = preprocess(img, mask, idx)
+            img, mask = preprocess(img, mask, idx, self.patch_num)
         
         if self.transform:
             img = self.transform(img)

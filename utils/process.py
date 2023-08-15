@@ -59,9 +59,13 @@ def divide4(fea, idx):
     fea_combine = np.stack((fea1, fea2, fea3, fea4))
     return fea_combine[idx]
 
-def preprocess(img, mask, idx):
-    img_ = divide4(img, idx)
-    mask_ = divide4(mask, idx)
+def preprocess(img, mask, idx, patch_num=64):
+    if patch_num == 4:
+        img_ = divide4(img, idx)
+        mask_ = divide4(mask, idx)
+    elif patch_num == 64:
+        img_ = divide64(img, idx)
+        mask_ = divide64(mask, idx)
     return img_, mask_
 
 def generate_pred_dict(pred_dict, file, predict, label):
