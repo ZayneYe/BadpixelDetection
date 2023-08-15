@@ -13,4 +13,10 @@ To train:
 python train.py --data_path {your_data_path} --model_path {saving_path}
 
 To evaluate:
-python test.py --mode test
+python test.py --data_path {your_data_path} --model_path {your_model_path} --model_path {saving_path}
+
+Voting predictions with multiple images:
+python vote_test.py --data_path {your_data_path} --model_path {your_model_path} --model_path {saving_path}
+
+Multiple GPUs:
+python train.py/test.py --device 0 1 2 3
