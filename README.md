@@ -10,7 +10,7 @@ The folder hierarchy for the dataset should look like this:
 where the S7-ISP-Dataset is download from https://www.kaggle.com/datasets/knn165897/s7-isp-dataset.
 
 To train:
-python train.py
+python train.py --data_path {your_data_path} --model_path {saving_path}
 
 To evaluate:
 python test.py --mode test
