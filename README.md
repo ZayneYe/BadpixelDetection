@@ -1,5 +1,7 @@
 # Bad Pixel Detection
 
+This code is for detection of bad pixels in Bayer iamges using Binary Segmentation
+
 Dataset Preparation
 ```
 1. Download Dataset
