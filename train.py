@@ -21,7 +21,8 @@ class PixelCalculate():
         mask_transform = transforms.Compose([transforms.ToTensor()])
         train_data = SamsungDataset(args.data_path, cate='train', transform=transform, mask_transform=mask_transform, patch_num=args.patch_num)
         val_data = SamsungDataset(args.data_path, cate='val', transform=transform, mask_transform=mask_transform, patch_num=args.patch_num)
-            
+        
+        self.patch_num = args.patch_num
         self.train_set = DataLoader(train_data, batch_size=args.batch_size, num_workers=args.num_workers, shuffle=True)
         self.val_set = DataLoader(val_data, batch_size=1, num_workers=args.num_workers, shuffle=False)
         self.dataset = args.data_path.split("/")[1][:3]
@@ -76,7 +77,7 @@ class PixelCalculate():
                     pbar.update()
                 pbar.close()
         val_loss /= len(self.val_set)
-        pred_all, lab_all = postprocess(pred_dict, self.dataset)
+        pred_all, lab_all = postprocess(pred_dict, self.dataset, self.patch_num)
         if self.dataset == "ISP":
             recall, precision, iou, dice_score, _ = calc_metrics(pred_all, lab_all, thres)
         else:
@@ -158,7 +159,7 @@ if __name__ == "__main__":
     parser.add_argument('--device', type=int, nargs='+', default=3)
     parser.add_argument('--batch_size', type=int, default=8)
     parser.add_argument('--val_step', type=int, default=1)
-    parser.add_argument('--patch_num', type=int, default=64)
+    parser.add_argument('--patch_num', type=int, default=4)
     parser.add_argument('--data_path', type=str, default='data/ISP_0.7')
     parser.add_argument('--model_path', type=str, default='UNet_ISP_0.7')
     args = parser.parse_args()

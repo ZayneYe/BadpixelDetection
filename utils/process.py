@@ -59,7 +59,7 @@ def divide4(fea, idx):
     fea_combine = np.stack((fea1, fea2, fea3, fea4))
     return fea_combine[idx]
 
-def preprocess(img, mask, idx, patch_num=64):
+def preprocess(img, mask, idx, patch_num):
     if patch_num == 4:
         img_ = divide4(img, idx)
         mask_ = divide4(mask, idx)
@@ -78,14 +78,21 @@ def generate_pred_dict(pred_dict, file, predict, label):
         pred_dict[file]['lab'] = [label]
     return pred_dict
 
-def postprocess(pred_dict, dataset):
+def postprocess(pred_dict, dataset, patch_num):
     pred_all, lab_all = [], []
 
     for key in pred_dict.keys():
         pred = torch.cat(pred_dict[key]['pred'], dim=1)
         lab = torch.cat(pred_dict[key]['lab'], dim=1)
-        pred_recon = reconstruct_expand(pred)
-        lab_recon = reconstruct_expand(lab)
+        if patch_num == 4:
+            pred_recon = reconstruct_expand(pred)
+            lab_recon = reconstruct_expand(lab)
+        elif patch_num == 64:
+            pred_recon = reconstruct(pred)
+            lab_recon = reconstruct(lab)
+        else:
+            print("Can't use this patch size. Set patch_num 4 or 64.")
+            exit()
         # lab_real = np.load(os.path.join("/home/xinanye/project/Badpixels/data/ISP/masks/val", str(key[0]))).astype(np.float32)
         # lab_real = torch.tensor(lab_real)
         # print(lab_real.shape)

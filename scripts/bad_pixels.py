@@ -12,7 +12,7 @@ def decide_range(value, delta):
 
 if __name__ == "__main__":
     data_dir = '../data/ISP_0.7'
-    org_dir = f'{data_dir}/original_imgs'
+    org_dir = f'../data/ISP_0.7/original_imgs'
     imgs_dir = f'{data_dir}/imgs'
     masks_dir = f'{data_dir}/masks'
     if not os.path.exists(masks_dir):
