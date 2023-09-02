@@ -15,7 +15,7 @@ def test(args, thres):
     dataset = args.data_path.split("/")[1][:3]
     transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize([151.78], [48.85])])
     mask_transform = transforms.Compose([transforms.ToTensor()])
-    test_data = SamsungDataset(args.data_path, cate='test', transform=transform, mask_transform=mask_transform)
+    test_data = SamsungDataset(args.data_path, cate='val', transform=transform, mask_transform=mask_transform)
     test_set = DataLoader(test_data, batch_size=1, num_workers=args.num_workers, shuffle=False)
     device = torch.device(f"cuda:{args.device}" if torch.cuda.is_available() else "cpu")
     model = torch.load(args.model_path).to(device)
@@ -55,7 +55,7 @@ def lanuch(args):
         plot_prcurve(r_vec, p_vec, iou_vec, dice_vec, args.save_path)
     else:
         _, r, p, iou, dice = test(args, 0.5)
-        print(f"Recall: {r}, Precision: {p}")
+        print(f"Recall: {r}, Precision: {p}, IOU: {iou}, Dice: {dice}")
     
 
 
@@ -63,10 +63,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--patch_num', type=int, default=4)
     parser.add_argument('--test_once', type=bool, default=True)
-    parser.add_argument('--data_path', type=str, default='data/ISP_0.7')
-    parser.add_argument('--model_path', type=str, default='runs/train/UNet_ISP_0.7/exp1/weights/best.pt')
-    parser.add_argument('--save_path', type=str, default='runs/test/UNet_ISP_0.7_2')
-    parser.add_argument('--device', type=int, nargs='+', default=2)
+    parser.add_argument('--data_path', type=str, default='data/ISP_0.6')
+    parser.add_argument('--model_path', type=str, default='runs/train/UNet_ISP_0.6/exp/weights/best.pt')
+    parser.add_argument('--save_path', type=str, default='runs/test/UNet_ISP_0.6_2')
+    parser.add_argument('--device', type=int, nargs='+', default=1)
     parser.add_argument('--num_workers', type=int, default=8)
     args = parser.parse_args()
     lanuch(args)

@@ -2,6 +2,9 @@ import numpy as np
 import os
 import torch
 
+def padding(img, mask):
+    
+
 def reconstruct_expand(predict):
     B, _, h, w = predict.shape
     H = (h - 2) * 2
