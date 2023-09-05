@@ -37,8 +37,9 @@ def test(args, thres):
             pbar.close()
     test_loss /= len(test_set)
     pred_all, lab_all = postprocess(pred_dict, dataset)
-    recall, precision, iou, dice_score = vote_metrics(pred_all, lab_all)
-    return test_loss, recall.item(), precision.item(), iou.item(), dice_score.item()
+    return pred_all, lab_all
+    # recall, precision, iou, dice_score = vote_metrics(pred_all, lab_all, no_of_test_images=args.no_of_test_images)
+    # return test_loss, recall.item(), precision.item(), iou.item(), dice_score.item()
 
 def lanuch(args):
     if not os.path.exists(args.save_path):
@@ -57,10 +58,26 @@ def lanuch(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data_path', type=str, default='data/ISP_0.7')
+    parser.add_argument('--data_path', type=str, default='/data1/Bad_Pixel_Detection/data/ISP_0.2')
     parser.add_argument('--model_path', type=str, default='runs/train/UNet_ISP_0.7/exp1/weights/best.pt')
     parser.add_argument('--save_path', type=str, default='runs/test/UNet_ISP_0.7_fixed')
-    parser.add_argument('--device', type=int, nargs='+', default=2)
+    parser.add_argument('--device', type=int, nargs='+', default=0)
     parser.add_argument('--num_workers', type=int, default=8)
+    parser.add_argument('--no_of_test_images', type=int, default=5)
+
     args = parser.parse_args()
-    lanuch(args)
+    # lanuch(args)
+    # _, r, p, iou, dice = test(args, 0.5)
+    # print('Precision=',p)
+    # print('Recall=',r)
+    # print('IoU=',iou)
+    if not os.path.exists(args.save_path):
+        os.makedirs(args.save_path)
+    f = open(os.path.join(args.save_path, 'vote_results.txt'), 'w')
+    f.write("Test_images\tRecall\tPrecision\tIoU\n")
+    pred_all, lab_all = test(args, 0.5)
+    no_of_test_images = [1, 3, 5, 7, 9, 11]
+    for n_image in no_of_test_images:
+        recall, precision, iou, dice_score = vote_metrics(pred_all, lab_all, no_of_test_images=n_image)
+        f.write("{}\t{}\t{}\t{}\n".format(n_image, recall.item(), precision.item(), iou.item()))
+    f.close()

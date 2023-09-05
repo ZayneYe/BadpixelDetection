@@ -62,25 +62,38 @@ class PixelCalculate():
     def validate(self, thres):
         self.model.eval()
         val_loss = 0
+        recall = 0
+        precision = 0
+        iou = 0
+        dice_score = 0
         pred_dict = {}
         with torch.no_grad():
             with tqdm(total=len(self.val_set), desc=f'Eval', unit='batch') as pbar:
                 for i, (feature, label, file) in enumerate(self.val_set):
                     feature, label = feature.to(self.device), label.to(self.device)
                     predict = self.model(feature)
-                    pred_dict = generate_pred_dict(pred_dict, file, predict, label)
+                    r, p, iou_val, dice_score_val, _ = calc_metrics(predict, label, thres)
+                    recall += r
+                    precision += p
+                    iou += iou_val
+                    dice_score += dice_score_val
+                    # pred_dict = generate_pred_dict(pred_dict, file, predict, label)
                     loss = self.criterion(predict, label)
-                    loss += dice_loss(predict, label)
+                    # loss += dice_loss(predict, label)
                     val_loss += loss.item()
                     pbar.set_postfix({'loss': loss.item()})
                     pbar.update()
                 pbar.close()
         val_loss /= len(self.val_set)
-        pred_all, lab_all = postprocess(pred_dict, self.dataset)
-        if self.dataset == "ISP":
-            recall, precision, iou, dice_score, _ = calc_metrics(pred_all, lab_all, thres)
-        else:
-            recall, precision, iou, dice_score = calc_metrics_one(pred_all, lab_all, thres)
+        recall /= len(self.val_set)
+        precision /= len(self.val_set)
+        iou /= len(self.val_set)
+        dice_score /= len(self.val_set)
+        # pred_all, lab_all = postprocess(pred_dict, self.dataset)
+        # if self.dataset == "ISP":
+        #     recall, precision, iou, dice_score, _ = calc_metrics(pred_all, lab_all, thres)
+        # else:
+        #     recall, precision, iou, dice_score = calc_metrics_one(pred_all, lab_all, thres)
         
         return val_loss, recall.item(), precision.item(), iou.item(), dice_score.item()
 
@@ -155,12 +168,13 @@ if __name__ == "__main__":
     parser.add_argument('--cls_thres', type=float, default=0.5)
     parser.add_argument('--epochs', type=int, default=50)
     parser.add_argument('--num_workers', type=int, default=8)
-    parser.add_argument('--device', type=int, nargs='+', default=3)
+    parser.add_argument('--device', type=int, default=5)
     parser.add_argument('--batch_size', type=int, default=8)
     parser.add_argument('--val_step', type=int, default=1)
     parser.add_argument('--patch_num', type=int, default=64)
     parser.add_argument('--data_path', type=str, default='data/ISP_0.7')
     parser.add_argument('--model_path', type=str, default='UNet_ISP_0.7')
+    # parser.add_argument('--model_path', type=str, default='debug')
     args = parser.parse_args()
     pc = PixelCalculate(args)
     pc.train()

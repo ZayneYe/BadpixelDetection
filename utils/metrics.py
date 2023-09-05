@@ -50,17 +50,34 @@ def calc_metrics_one(predict, label, thres):
     dice_score /= len(predict)
     return recall, precision, iou, dice_score
 
-def vote_metrics(predict, label):
-    pred = torch.sum(predict, dim=0) / predict.shape[0]
-    lab = label[0]
-    pred_binary = (pred >= 0.5)
-    cm, tn, fp, fn, tp = confuse_matrix(pred_binary, lab)
-    iou = binary_iou(tp, fn, fp)
-    recall, precision = precision_recall(tp, fn, fp)
-    dice_score = dice_coeff(pred_binary, lab)
+def vote_metrics(predict, label, no_of_test_images=5):
+    # pred = torch.sum(predict, dim=0) / predict.shape[0]
+    # lab = label[0]
+    # pred_binary = (pred >= 0.5)
+    # cm, tn, fp, fn, tp = confuse_matrix(pred_binary, lab)
+    # iou = binary_iou(tp, fn, fp)
+    # recall, precision = precision_recall(tp, fn, fp)
+    # dice_score = dice_coeff(pred_binary, lab)
+    # return recall, precision, iou, dice_score
+
+    precision, recall, iou, dice_score = 0, 0, 0, 0
+    j = predict.shape[0] - no_of_test_images
+    for i in range(0,j+1):
+        pred = predict[i:i+no_of_test_images]
+        pred = torch.sum(pred, dim=0) / pred.shape[0]
+        lab = label[0]
+        pred_binary = (pred >= 0.5)
+        cm, tn, fp, fn, tp = confuse_matrix(pred_binary, lab)
+        iou_val = binary_iou(tp, fn, fp)
+        r, p = precision_recall(tp, fn, fp)
+        dice_score_val = dice_coeff(pred_binary, lab)
+        recall += r
+        precision += p
+        iou += iou_val
+        dice_score += dice_score_val
+    recall, precision, iou, dice_score = recall/(j+1.0), precision/(j+1.0), iou/(j+1.0), dice_score/(j+1.0)
     return recall, precision, iou, dice_score
-        
-                
+
 def dice_coeff(input: Tensor, target: Tensor, epsilon: float = 1e-10):
     assert input.size() == target.size()
     # assert input.dim() == 3 or not reduce_batch_first

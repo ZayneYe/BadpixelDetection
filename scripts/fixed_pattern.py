@@ -22,9 +22,10 @@ bad_rate = 0.0001
 height, width = 3024, 4032
 delta = 0.7
 
-test_dir = "../data/ISP_0.7/imgs/test"
+test_dir = "/data1/Bad_Pixel_Detection/data/ISP_0.7/imgs/test"
 fix_dir = os.path.join(test_dir.split("test")[0], "fixed_pattern")
-org_dir = os.path.join(test_dir.split("imgs")[0], "original_imgs")
+# org_dir = os.path.join(test_dir.split("imgs")[0], "original_imgs")
+org_dir = '/data1/S7-ISP-Dataset/medium_dng'
 mask_dir = os.path.join(test_dir.split("imgs")[0], "masks/fixed_pattern")
 
 if not os.path.exists(fix_dir):
@@ -32,6 +33,13 @@ if not os.path.exists(fix_dir):
 if not os.path.exists(mask_dir):
     os.makedirs(mask_dir)
 select_coords = generate_pattern(height, width, bad_rate)
+pixel_var = []
+for c in select_coords:
+    range = [(0, (1 - delta)), ((1 + delta), 5.0)] # limit max deviation to 100%
+    chosen_range = random.choice(range) # choose +delta or -delta
+    chosen_delta = random.uniform(*chosen_range)
+    # chosen_delta = random.choice([1-delta,1+delta])
+    pixel_var.append(chosen_delta)
 for npy in os.listdir(test_dir):
     dng = f"{npy.split('.')[0]}.dng"
     # print(dng)
@@ -40,11 +48,13 @@ for npy in os.listdir(test_dir):
     raw_data = np.asarray(raw_data)
     H, W = raw_data.shape
     mask = np.zeros((H, W))
-    for c in select_coords:
+    for i,c in enumerate(select_coords):
         o_val = raw_data[c[0]][c[1]]
-        ranges = decide_range(o_val, delta)
-        chosed_range = random.choice(ranges)
-        b_val = random.randint(*chosed_range)
+        # ranges = decide_range(o_val, delta)
+        # chosed_range = random.choice(ranges)
+        # b_val = random.randint(*chosed_range)
+        b_val = min(max(pixel_var[i] * o_val, 0), 1023)
+        print(o_val, b_val)
         mask[c[0]][c[1]] = 1
         raw_data[c[0]][c[1]] = b_val
     np.save(os.path.join(fix_dir, npy), raw_data)
