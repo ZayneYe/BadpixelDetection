@@ -93,10 +93,10 @@ def postprocess(pred_dict, dataset):
         # print(torch.equal(lab_real, lab_recon.squeeze(0)))
         pred_all.append(pred_recon)
         lab_all.append(lab_recon)
-    if dataset == "ISP":
-        return torch.cat(pred_all, dim=0), torch.cat(lab_all, dim=0)
-    else:
-        return pred_all, lab_all
+    # if dataset == "ISP":
+    return torch.cat(pred_all, dim=0), torch.cat(lab_all, dim=0)
+    # else:
+    #     return pred_all, lab_all
     
 if __name__ == '__main__':
     npy_dir = "/home/xinanye/project/Badpixels/data/SIDD_DNG/masks"

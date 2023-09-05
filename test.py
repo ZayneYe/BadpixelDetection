@@ -9,7 +9,7 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 import numpy as np
 import os
-
+from models.model import UNet
 
 def test(args, thres):
     dataset = args.data_path.split("/")[1][:3]
@@ -19,6 +19,7 @@ def test(args, thres):
     test_set = DataLoader(test_data, batch_size=1, num_workers=args.num_workers, shuffle=False)
     device = torch.device(f"cuda:{args.device}" if torch.cuda.is_available() else "cpu")
     model = torch.load(args.model_path).to(device)
+    # model = UNet(1, 1).to(device)
     criterion = torch.nn.BCELoss()
     model.eval()
     test_loss = 0
@@ -60,7 +61,11 @@ if __name__ == "__main__":
     parser.add_argument('--data_path', type=str, default='data/ISP_0.7')
     parser.add_argument('--model_path', type=str, default='runs/train/UNet_ISP_0.7/exp1/weights/best.pt')
     parser.add_argument('--save_path', type=str, default='runs/test/UNet_ISP_0.7_2')
-    parser.add_argument('--device', type=int, nargs='+', default=2)
+    parser.add_argument('--device', type=int, nargs='+', default=1)
     parser.add_argument('--num_workers', type=int, default=8)
     args = parser.parse_args()
-    lanuch(args)
+    # lanuch(args)
+    _, r, p, iou, dice = test(args, 0.5)
+    print('Precision=',p)
+    print('Recall=',r)
+    print('IoU=',iou)

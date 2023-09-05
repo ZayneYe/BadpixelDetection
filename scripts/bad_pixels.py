@@ -11,8 +11,9 @@ def decide_range(value, delta):
         return [(0, int((1 - delta) * value)), (int((1 + delta) * value), 1023)]
 
 if __name__ == "__main__":
-    data_dir = '../data/ISP_0.7'
-    org_dir = f'{data_dir}/original_imgs'
+    data_dir = '/data1/Bad_Pixel_Detection/data/ISP_0.7_0.7'
+    # org_dir = f'{data_dir}/original_imgs'
+    org_dir = '/data1/S7-ISP-Dataset/medium_dng'
     imgs_dir = f'{data_dir}/imgs'
     masks_dir = f'{data_dir}/masks'
     if not os.path.exists(masks_dir):
@@ -20,7 +21,7 @@ if __name__ == "__main__":
     if not os.path.exists(imgs_dir):
         os.makedirs(imgs_dir)
     delta = 0.7
-    bad_rate = 0.0001
+    bad_rate = 0.70
     
     for i, dng in enumerate(os.listdir(org_dir)):
         file_name = dng.split('.')[0]
