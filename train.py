@@ -101,7 +101,6 @@ class PixelCalculate():
             with tqdm(total=len(self.train_set), desc=f'Train', unit='batch') as pbar:
                 for i, (feature, label, _) in enumerate(self.train_set):
                     feature, label = feature.to(self.device), label.to(self.device)
-                    
                     optimizer.zero_grad()
                     predict = model(feature)
                     loss = self.criterion(predict, label)
@@ -157,9 +156,9 @@ if __name__ == "__main__":
     parser.add_argument('--epochs', type=int, default=10)
     parser.add_argument('--num_workers', type=int, default=8)
     parser.add_argument('--device', type=int, nargs='+', default=0)
-    parser.add_argument('--batch_size', type=int, default=1)
+    parser.add_argument('--batch_size', type=int, default=8)
     parser.add_argument('--val_step', type=int, default=1)
-    parser.add_argument('--patch_num', type=int, default=4)
+    parser.add_argument('--patch_num', type=int, default=64)
     parser.add_argument('--data_path', type=str, default='/data1/Invertible_ISP/Invertible_ISP_0.7')
     parser.add_argument('--model_path', type=str, default='Invertible_ISP_0.7_4')
     args = parser.parse_args()

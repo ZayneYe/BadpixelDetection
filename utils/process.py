@@ -1,8 +1,22 @@
 import numpy as np
 import os
 import torch
+import torch.nn.functional as F
 
-def padding(img, mask):
+def padding_6000(img, mask):
+    maxH, maxW = 4048, 6080
+    H, W = img.shape
+    pad_left = pad_right = (maxW - W) // 2
+    pad_top = pad_bottom = (maxH - H) // 2
+    if W % 2:
+        pad_right += 1
+    if H % 2:
+        pad_bottom += 1
+    img = torch.tensor(img)
+    mask = torch.tensor(mask)
+    img_pad = F.pad(img, (pad_left, pad_right, pad_top, pad_bottom), mode='constant', value=0)
+    mask_pad = F.pad(mask, (pad_left, pad_right, pad_top, pad_bottom), mode='constant', value=0)
+    return img_pad.numpy(), mask_pad.numpy()
     
 
 def reconstruct_expand(predict):
@@ -63,6 +77,7 @@ def divide4(fea, idx):
     return fea_combine[idx]
 
 def preprocess(img, mask, idx, patch_num):
+    img, mask = padding_6000(img, mask)
     if patch_num == 4:
         img_ = divide4(img, idx)
         mask_ = divide4(mask, idx)
