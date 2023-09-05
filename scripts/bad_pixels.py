@@ -11,11 +11,10 @@ def decide_range(value, delta):
         return [(0, int((1 - delta) * value)), (int((1 + delta) * value), 1023)]
 
 if __name__ == "__main__":
-    data_dir = '/data1/Bad_Pixel_Detection/data/ISP_0.7_0.7'
-    # org_dir = f'{data_dir}/original_imgs'
-    org_dir = '/data1/S7-ISP-Dataset/medium_dng'
-    imgs_dir = f'{data_dir}/imgs'
-    masks_dir = f'{data_dir}/masks'
+    data_dir = '/data1/Invertible_ISP'
+    org_dir = f'{data_dir}/original_images'
+    imgs_dir = f'{data_dir}/Invertible_ISP_0.7/imgs'
+    masks_dir = f'{data_dir}/Invertible_ISP_0.7/masks'
     if not os.path.exists(masks_dir):
         os.makedirs(masks_dir)
     if not os.path.exists(imgs_dir):
@@ -23,11 +22,18 @@ if __name__ == "__main__":
     delta = 0.7
     bad_rate = 0.70
     
+    err, crt = 0, 0
     for i, dng in enumerate(os.listdir(org_dir)):
         file_name = dng.split('.')[0]
         raw = rawpy.imread(os.path.join(org_dir, dng))
         raw_data = raw.raw_image
         raw_data = np.asarray(raw_data)
+        if len(raw_data.shape) != 2:
+            err += 1
+            print(f"DNG size: {raw_data.shape}, Error num: {err}")
+            continue
+        else:
+            crt += 1
         H, W = raw_data.shape
         bad_num = int(bad_rate * H * W)
         random.seed(i)
@@ -43,7 +49,7 @@ if __name__ == "__main__":
         np.save(os.path.join(imgs_dir, file_name), raw_data)
         np.save(os.path.join(masks_dir, file_name), mask)
         print(f'noisy {dng} is saved.')
-            
+    print(f"Bad pixels injection finished. {crt} success, {err} fail.")      
             
         
     

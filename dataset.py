@@ -21,7 +21,7 @@ class SamsungDataset(torch.utils.data.Dataset):
         # mask_file = os.listdir(self.masks_path)[index // self.patch_num]
         img = np.load(os.path.join(self.imgs_path, file)).astype(np.float32)
         mask = np.load(os.path.join(self.masks_path, file)).astype(np.float32)
-       
+        
         if self.patch_num != 1:
             img, mask = preprocess(img, mask, idx, self.patch_num)
         
@@ -29,6 +29,7 @@ class SamsungDataset(torch.utils.data.Dataset):
             img = self.transform(img)
         if self.mask_transform:
             mask = self.mask_transform(mask)
+        
         return img, mask, file
 
     def __len__(self):
