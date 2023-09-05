@@ -21,7 +21,7 @@ python split_dataset.py
 Training
 ```
 Single gpu: python train.py
-Multi-gpu: python train.py --device 0 1 2 3
+Multi-gpu: python train.py --device 0,1,2,3
 
 ```
 
@@ -29,7 +29,6 @@ Testing
 ```
 1. Bad Pixel Detection using Segmentation
 Single gpu: python test.py
-Multi-gpu: python test.py --device 0 1 2 3
 
 2. Bad Pixel Detection using Confidence Calibration
 cd scripts/
