@@ -91,8 +91,8 @@ class PixelCalculate():
                     pbar.update()
                 pbar.close()
         val_loss /= len(self.val_set)
-        recall, precision = precision_recall(tp, fn, fp)
-        iou = binary_iou(tp, fn, fp)
+        recall, precision = precision_recall(tp_, fn_, fp_)
+        iou = binary_iou(tp_, fn_, fp_)
         dice_score = torch.cat(dice_batch_all, dim=0).mean()
         # pred_all, lab_all = postprocess(pred_dict, self.dataset)
         # if self.dataset == "ISP":
@@ -180,4 +180,4 @@ if __name__ == "__main__":
     parser.add_argument('--model_path', type=str, default='Invertible_ISP_0.7_64')
     args = parser.parse_args()
     pc = PixelCalculate(args)
-    pc.validate(0.5)
+    pc.train()
