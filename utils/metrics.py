@@ -22,7 +22,14 @@ def confuse_matrix(pred, lab):
     FN = torch.sum((lab == 1) & (pred == 0))
     cm = torch.tensor([[TN, FP], [FN, TP]])
     return cm, TN, FP, FN, TP
+
+def calc_patch_metrics(predict, label, thres):
+    pred_binary = (predict >= thres)
+    cm, tn, fp, fn, tp = confuse_matrix(pred_binary, label)
     
+    _, dice_batch = dice_coeff(pred_binary, label)
+    return tn, fp, fn, tp, dice_batch, cm
+
 def calc_metrics(predict, label, thres):
     # pred_recon = reconstruct(predict)
     # lab_recon = reconstruct(label)
@@ -89,8 +96,9 @@ def dice_coeff(input: Tensor, target: Tensor, epsilon: float = 1e-10):
     sets_sum = input.sum(dim=sum_dim) + target.sum(dim=sum_dim)
     sets_sum = torch.where(sets_sum == 0, inter, sets_sum)
     dice = (inter + epsilon) / (sets_sum + epsilon)
-    return dice.mean()
+    return dice.mean(), dice
 
 
 def dice_loss(input: Tensor, target: Tensor):
-    return 1 - dice_coeff(input, target)
+    dice_mean, _ = dice_coeff(input, target)
+    return 1 - dice_mean

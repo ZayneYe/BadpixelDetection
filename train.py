@@ -10,7 +10,7 @@ from torchvision import transforms
 from models.model import UNet
 from utils.logger import get_logger
 from utils.plot import plot_loss_curve, plot_prcurve, plot_lr_curve, plot_iou_curve
-from utils.metrics import calc_metrics, dice_loss, calc_metrics_one
+from utils.metrics import dice_loss, calc_metrics, calc_metrics_one, calc_patch_metrics, precision_recall, binary_iou
 from utils.process import postprocess, generate_pred_dict
 from torch.optim.lr_scheduler import StepLR
 import numpy as np
@@ -70,33 +70,30 @@ class PixelCalculate():
     def validate(self, thres):
         self.model.eval()
         val_loss = 0
-        recall = 0
-        precision = 0
-        iou = 0
-        dice_score = 0
+        fp_, fn_, tp_ = 0, 0, 0
+        dice_batch_all = []
         pred_dict = {}
         with torch.no_grad():
             with tqdm(total=len(self.val_set), desc=f'Eval', unit='batch') as pbar:
                 for i, (feature, label, file) in enumerate(self.val_set):
                     feature, label = feature.to(self.device), label.to(self.device)
                     predict = self.model(feature)
-                    r, p, iou_val, dice_score_val, _ = calc_metrics(predict, label, thres)
-                    recall += r
-                    precision += p
-                    iou += iou_val
-                    dice_score += dice_score_val
+                    tn, fp, fn, tp, dice_batch, _ = calc_patch_metrics(predict, label, thres)
+                    fp_ += fp
+                    fn_ += fn
+                    tp_ += tp
+                    dice_batch_all.append(dice_batch)
                     # pred_dict = generate_pred_dict(pred_dict, file, predict, label)
                     loss = self.criterion(predict, label)
-                    # loss += dice_loss(predict, label)
+                    loss += dice_loss(predict, label)
                     val_loss += loss.item()
                     pbar.set_postfix({'loss': loss.item()})
                     pbar.update()
                 pbar.close()
         val_loss /= len(self.val_set)
-        recall /= len(self.val_set)
-        precision /= len(self.val_set)
-        iou /= len(self.val_set)
-        dice_score /= len(self.val_set)
+        recall, precision = precision_recall(tp_, fn_, fp_)
+        iou = binary_iou(tp_, fn_, fp_)
+        dice_score = torch.cat(dice_batch_all, dim=0).mean()
         # pred_all, lab_all = postprocess(pred_dict, self.dataset)
         # if self.dataset == "ISP":
         #     recall, precision, iou, dice_score, _ = calc_metrics(pred_all, lab_all, thres)
@@ -175,22 +172,12 @@ if __name__ == "__main__":
     parser.add_argument('--cls_thres', type=float, default=0.5)
     parser.add_argument('--epochs', type=int, default=10)
     parser.add_argument('--num_workers', type=int, default=8)
-<<<<<<< HEAD
-    parser.add_argument('--device', type=int, default=5)
-    parser.add_argument('--batch_size', type=int, default=8)
-    parser.add_argument('--val_step', type=int, default=1)
-    parser.add_argument('--patch_num', type=int, default=64)
-    parser.add_argument('--data_path', type=str, default='data/ISP_0.7')
-    parser.add_argument('--model_path', type=str, default='UNet_ISP_0.7')
-    # parser.add_argument('--model_path', type=str, default='debug')
-=======
     parser.add_argument('--device', type=str, default='0', help='GPU IDs to use, separated by commas. E.g., 0,1,2,3')
-    parser.add_argument('--batch_size', type=int, default=24)
+    parser.add_argument('--batch_size', type=int, default=8)
     parser.add_argument('--val_step', type=int, default=1)
     parser.add_argument('--patch_num', type=int, default=64)
     parser.add_argument('--data_path', type=str, default='/data1/Invertible_ISP/Invertible_ISP_0.7')
     parser.add_argument('--model_path', type=str, default='Invertible_ISP_0.7_64')
->>>>>>> b70d2ef9b871f0d4fe68efb565745c6d1ce8eaf9
     args = parser.parse_args()
     pc = PixelCalculate(args)
     pc.train()
