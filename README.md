@@ -1,6 +1,8 @@
 # Bad Pixel Detection
 
-This code is for detection of bad pixels in Bayer iamges using Binary Segmentation
+We propose a binary segmentation method for effective detection of bad pixels. Our approach yields up to 99.6\% detection accuracy with ${<}0.6\%$ false positives. While this approach achieves nearly perfect detection for large datasets, the detection rate drops for smaller datasets. To mitigate this gap, we propose confidence calibration using multiple images during inference. Our confidence-calibrated segmentation approach yields an improvement of up to 20\% over regular binary segmentation. 
+
+[link to paper](https://arxiv.org/pdf/2402.05521.pdf)
 
 Dataset Preparation
 ```
@@ -34,4 +36,17 @@ Single gpu: python test.py
 cd scripts/
 python fixed_pattern.py # inject same error pattern in all test images
 python vote_test.py
+```
+
+## Citation
+If you find this repo useful for your research, please consider citing the following work:
+```
+@InProceedings{sarkar_2024_CVPRW,
+    author       = {Sarkar, Sreetama and Ye, Xinan and Datta, Gourav and Beerel, Peter},
+    title        = {FixPix: Fixing Bad Pixels using Deep Learning}, 
+    eprint       = {2310.11637},
+    archivePrefix={arXiv},
+    primaryClass ={eess.IV},
+    year         = {2024}
+}
 ```

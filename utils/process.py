@@ -77,7 +77,7 @@ def divide4(fea, idx):
     return fea_combine[idx]
 
 def preprocess(img, mask, idx, patch_num):
-    img, mask = padding_6000(img, mask)
+    # img, mask = padding_6000(img, mask)
     if patch_num == 4:
         img_ = divide4(img, idx)
         mask_ = divide4(mask, idx)
